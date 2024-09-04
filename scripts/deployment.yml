@@ -1,1 +1,37 @@
 # Write Kubernetes Deployment Script
+apiVersion: apps/v1 #Specifies the API version
+kind: Deployment #Specifies that this configuration is for a Deployment
+metadata:
+  name: book-catalog #Names the deployment
+spec:
+  replicas: 1 #Specifies only 1 replica can run
+  selector:
+    matchLabels:
+      app: book-catalog #The deployment will manage the pod that have book-catalog label
+  template:
+    metadata:
+      labels:
+        app: book-catalog #Specifies the pof label
+    spec:
+      containers: 
+      - name: book-catalog #Name the container
+        image: book-catalog:1 #Specifies the Docker image tag to 1
+        ports:
+        - containerPort: 8000 #Set container port to 8000
+        imagePullPolicy: Never #Tell Kubernetes not to pull the image from a registry
+        env: #Defines environment variables for the container.
+        - name: DATABASE_URL #Set the name
+          value: "postgresql://s224806968_postgresql_user:qvgJMG8yg752TdmR9458YIoFdvHMpNwp@dpg-cra73s23esus739rsjt0-a.singapore-postgres.render.com/s224806968_postgresql" #Set the value
+--- #YAML separator that separate multiple documents within the same file.
+apiVersion: v1 #Specifies the core API version
+kind: Service #Specifies that this document is for a Service
+metadata:
+  name: book-catalog #Names the service
+spec:
+  selector:
+    app: book-catalog #Links the service to pods with the book-catalog label
+  type: NodePort #Specifies the type of service
+  ports:
+    - protocol: TCP #Set the protocol type
+      port: 8000 #Specifies the port for the service
+      targetPort: 8000 #Maps the port 80 of the service to port 4000 on the container
